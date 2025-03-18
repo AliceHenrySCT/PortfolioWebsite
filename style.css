@@ -1,0 +1,90 @@
+body {
+    font-family: 'Poppins', sans-serif;
+    margin: 0;
+    padding: 0;
+    background-color: #fff;
+  }
+
+  .navbar {
+    background-color: #b3a0d4;
+  }
+
+  .navbar a {
+    color: #fff !important;
+    font-weight: 500;
+  }
+
+  .navbar a:hover {
+    color: #d1c1e0 !important;
+  }
+
+  .bio-section {
+    background-color: #f4f4f4;
+    padding: 100px 0;
+    text-align: center;
+  }
+
+  .bio-section h1 {
+    font-size: 3rem;
+    color: #333;
+  }
+
+  .bio-section p {
+    font-size: 1.2rem;
+    color: #555;
+  }
+
+  .about-section {
+    padding: 50px 0;
+    text-align: center;
+  }
+
+  .projects-section {
+    padding: 50px 0;
+    background-color: #f9f9f9;
+  }
+
+  .projects-title {
+    text-align: center;
+  }
+
+  .footer {
+    background-color: #b3a0d4;
+    padding: 20px 0;
+    text-align: center;
+  }
+
+  .footer p {
+    margin: 0;
+    color: white;
+    font-size: 1rem;
+  }
+
+  .social-icons a {
+    margin: 0 50px 0 0;
+    color: #000000;
+    text-decoration: none;
+    font-size: 2rem;
+  }
+
+  .contact-section {
+    text-align: center;
+  }
+
+
+  .social-icons a:hover {
+    color: #d1c1e0;
+  }
+
+  .card {
+    margin-bottom: 20px;
+  }
+
+  .card-title {
+    font-size: 1.2rem;
+  }
+
+  .card-text {
+    font-size: 1rem;
+    color: #777;
+  }

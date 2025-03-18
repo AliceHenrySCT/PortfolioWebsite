@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title>Memory Game</title>
+    <!-- Bootstrap-->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500&display=swap" rel="stylesheet">
+    <!-- Link to the custom CSS file -->
+    <link rel="stylesheet" href="style.css">
+    
+</head>
+<body>
+      <!-- Navigation Menu -->
+   <!--the nav class sets the sytle used for the nav bar using bootstrap-->
+  <nav class="navbar navbar-expand-lg navbar-light">
+    <div class="container">
+      <!--creates the button on the top left that links to the top of the page-->
+      <a class="navbar-brand" href="#">Alice Henry</a>
+      <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav"
+        aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+      </button>
+      <!-- creates the nav buttons on the top right-->
+      <div class="collapse navbar-collapse" id="navbarNav">
+        <ul class="navbar-nav ms-auto">
+          <li class="nav-item">
+            <a class="nav-link" href="..\index.html#home">Home</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="..\index.html#about">About</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="..\index.html#projects">Projects</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="..\index.html#contact">Contact</a>
+          </li>
+        </ul>
+      </div>
+    </div>
+  </nav>
+    <div class="text-center my-4">
+        <!--Title and game explination-->
+        <h1 class="display-5 text-purple">Memory Game</h1>
+        <p class="text-secondary">Test your memory by following the pattern. Match the boxes in order to score points and beat your high score!</p>
+    </div>
+    <!--Centers game and round counters using bootstrap-->
+    <div class="d-flex justify-content-center">
+        <!--Displays current round counter-->
+        <div class="score" id="currentScore">
+            1
+            <div class="text-purple">
+                Current Round
+            </div>
+        </div>
+    <!--Displays the game grid-->
+        <div class="grid">
+            <div class="row">
+                <div class="col" id="box-1"></div>
+                <div class="col" id="box-2"></div>
+                <div class="col" id="box-3"></div>
+            </div>
+            <div class="row">
+                <div class="col" id="box-4"></div>
+                <div class="col" id="box-5"></div>
+                <div class="col" id="box-6"></div>
+            </div>
+            <div class="row">
+                <div class="col" id="box-7"></div>
+                <div class="col" id="box-8"></div>
+                <div class="col" id="box-9"></div>
+            </div>
+        </div>
+        <!--Displays highest round reached-->
+        <div class="score" id="highScore">
+            0
+            <div class=text-purple">
+                Record Round
+            </div>
+        </div>
+    </div>
+    <!--Button to start the round-->
+    <div>
+        <button id="startButton">START ROUND</button>
+    </div>
+    <!--Footer including creator and year of creation-->
+    <footer class="footer">
+        <p>&copy; 2024 Alice Henry | All rights reserved</p>
+      </footer>
+    
+    <!-- Imports SweetAlert to allow for use of swal instead of alert-->
+    <script src="https://unpkg.com/sweetalert/dist/sweetalert.min.js"></script>
+    <!-- Link to external JavaScript file -->
+    <script src="script.js"></script>
+</body>
+</html>

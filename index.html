@@ -7,7 +7,8 @@
   <title>Alice Henry - Software Developer Portfolio</title>
   <!--links bootstrap and the font used on the page-->
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
-  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
   <!--links the css fi-->
   <link rel="stylesheet" type="text/css" href="style.css" />
 </head>
@@ -16,12 +17,13 @@
 
   <!-- Navigation Menu -->
    <!--the nav class sets the sytle used for the nav bar using bootstrap-->
-  <nav class="navbar navbar-expand-lg navbar-light">
+  <nav class="navbar navbar-expand-lg navbar-dark fixed-top">
     <div class="container">
       <!--creates the button on the top left that links to the top of the page-->
-      <a class="navbar-brand" href="#">Alice Henry</a>
+      <a class="navbar-brand fw-bold" href="#"><span class="text-accent">Alice</span> Henry</a>
       <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav"
         aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+        <span class="navbar-toggler-icon"></span>
       </button>
       <!-- creates the nav buttons on the top right that link to the relevent part of the page-->
       <div class="collapse navbar-collapse" id="navbarNav">
@@ -46,88 +48,167 @@
   <!-- bio Section -->
   <section id="home" class="bio-section">
     <div class="container">
+      <div class="row align-items-center min-vh-100">
+        <div class="col-lg-8 mx-auto text-center">
+          <div class="hero-content">
+            <p class="hero-greeting text-accent mb-3">Hello, I'm</p>
       <!--Large header and subtitle text-->
-      <h1>Hi, I'm Alice Henry</h1>
-      <p>A software developer with a passion for problem solving </p>
+            <h1 class="hero-title mb-4">Alice Henry</h1>
+            <h2 class="hero-subtitle mb-4">Software Developer & Problem Solver</h2>
+            <p class="hero-description mb-5">Crafting elegant solutions through clean code and thoughtful design</p>
+            <div class="hero-buttons">
+              <a href="#projects" class="btn btn-accent me-3">View My Work</a>
+              <a href="#contact" class="btn btn-outline-light">Get In Touch</a>
+            </div>
+          </div>
+        </div>
+      </div>
     </div>
   </section>
 
   <!-- About Section -->
   <section id="about" class="about-section">
     <div class="container">
+      <div class="row">
+        <div class="col-lg-8 mx-auto">
+          <div class="section-header text-center mb-5">
       <!--about me text-->
-      <h2>About Me</h2>
-      <p>I leverage the creative foundations and design principles I honed at VCAD (Visual College of Art and Design) alongside my technical expertise to craft engaging, user-friendly applications that make people’s lives easier. Whether it’s a collaborative NoteApp or a dynamic Weather App, I focus on blending clean, thoughtful design with solid functionality. I thrive on tackling real-world challenges and turning fresh ideas into polished digital tools that help people get things done more easily. Staying curious and always learning, I believe great technology should be simple, accessible, and empowering for everyone from end users to fellow developers.</p>
+            <h2 class="section-title">About Me</h2>
+            <div class="section-divider"></div>
+          </div>
+          <div class="about-content">
+            <p class="lead mb-4">I leverage the creative foundations and design principles I honed at VCAD (Visual College of Art and Design) alongside my technical expertise to craft engaging, user-friendly applications that make people's lives easier.</p>
+            <p>Whether it's a collaborative NoteApp or a dynamic Weather App, I focus on blending clean, thoughtful design with solid functionality. I thrive on tackling real-world challenges and turning fresh ideas into polished digital tools that help people get things done more easily.</p>
+            <p>Staying curious and always learning, I believe great technology should be simple, accessible, and empowering for everyone from end users to fellow developers.</p>
+          </div>
+        </div>
+      </div>
     </div>
   </section>
 
   <!-- Projects Section -->
   <section id="projects" class="projects-section">
     <div class="container">
-      <h2 class="projects-title">Featured Projects</h2>
+      <div class="section-header text-center mb-5">
+        <h2 class="section-title">Featured Projects</h2>
+        <div class="section-divider"></div>
+        <p class="section-subtitle">A showcase of my recent work and technical expertise</p>
+      </div>
     
       <div class="row">
         <!--div uses bootstrap to set the size of the first card on the webpage-->
-        <div class="col-md-6">
-          <div class="card">
+        <div class="col-lg-6 mb-4">
+          <div class="project-card">
             <img src="Images/RougeBreakerTriple.png" class="card-img-top" alt="Project 3">
-            <div class="card-body">
-              <h5 class="card-title">Rouge Breaker Game</h5>
-              <p class="card-text">A classic brick breaker game</p>
-              <p class="card-text">Skills displayed: Game development with React and React Native Skia, Custom canvas drawing and animation logic, State management for game flow and player progression </p>
-              <p class="card-text">Things I learned: How to architect a game loop and manage frame updates in React Native Skia, Integrating and switching between game states (playing, paused, win/lose, power-up selection)</p>
-              <p class="card-text">Accomplishments: Implemented a fully functional upgrade system (power-ups after each round) Delivered smooth, intuitive touch controls for mobile play</p>
+            <div class="project-content">
+              <h5 class="project-title">Rouge Breaker Game</h5>
+              <p class="project-description">A classic brick breaker game with modern React Native implementation</p>
+              <div class="project-details">
+                <div class="detail-section">
+                  <h6><i class="fas fa-code text-accent"></i> Skills Displayed</h6>
+                  <p>Game development with React and React Native Skia, Custom canvas drawing and animation logic, State management for game flow and player progression</p>
+                </div>
+                <div class="detail-section">
+                  <h6><i class="fas fa-lightbulb text-accent"></i> Key Learnings</h6>
+                  <p>How to architect a game loop and manage frame updates in React Native Skia, Integrating and switching between game states</p>
+                </div>
+                <div class="detail-section">
+                  <h6><i class="fas fa-trophy text-accent"></i> Accomplishments</h6>
+                  <p>Implemented a fully functional upgrade system and delivered smooth, intuitive touch controls for mobile play</p>
+                </div>
+              </div>
               <!--Creates a button to Link to a seperate page for the project-->
-              <a href="https://rougebreakerweb.netlify.app/" class="btn btn-primary">View Project</a> 
-              <a href="https://github.com/AliceHenrySCT/RougeBreakerWeb" class="btn btn-primary">View GitHub</a>
+              <div class="project-links">
+                <a href="https://rougebreakerweb.netlify.app/" class="btn btn-accent me-2"><i class="fas fa-external-link-alt"></i> Live Demo</a> 
+                <a href="https://github.com/AliceHenrySCT/RougeBreakerWeb" class="btn btn-outline-light"><i class="fab fa-github"></i> GitHub</a>
+              </div>
             </div>
           </div>
         </div>
         <!--div uses bootstrap to set the size of the second card on the webpage-->
-        <div class="col-md-6">
-          <div class="card">
+        <div class="col-lg-6 mb-4">
+          <div class="project-card">
             <img src="Images/WeatherAppScreen.PNG" class="card-img-top" alt="Project 2">
-            <div class="card-body">
-              <h5 class="card-title">Weather App</h5>
-              <p class="card-text">Real time weather forecasts at a glance.</p>
-              <p class="card-text">Skills displayed: API integration (OpenWeatherMap), custom component design and reuse, and state management in React</p>
-              <p class="card-text">Things I learned: Best practices for handling and displaying external data in real time, managing complex UI states and conditional rendering, and creating a consistent, appealing, and customizable theme system</p>
-              <p class="card-text">Accomplishments: Developed a visually appealing, fully responsive weather app, and added features like location favourites and theming for a better user experience</p>
+            <div class="project-content">
+              <h5 class="project-title">Weather App</h5>
+              <p class="project-description">Real-time weather forecasts with a beautiful, responsive interface</p>
+              <div class="project-details">
+                <div class="detail-section">
+                  <h6><i class="fas fa-code text-accent"></i> Skills Displayed</h6>
+                  <p>API integration (OpenWeatherMap), custom component design and reuse, and state management in React</p>
+                </div>
+                <div class="detail-section">
+                  <h6><i class="fas fa-lightbulb text-accent"></i> Key Learnings</h6>
+                  <p>Best practices for handling external data in real time, managing complex UI states and creating customizable theme systems</p>
+                </div>
+                <div class="detail-section">
+                  <h6><i class="fas fa-trophy text-accent"></i> Accomplishments</h6>
+                  <p>Developed a fully responsive weather app with location favorites and theming for enhanced user experience</p>
+                </div>
+              </div>
               <!--Creates a button to Link to a seperate page for the project-->
-              <a href="https://weatherapp-zsma.onrender.com" class="btn btn-primary">View Project</a>
-              <a href="https://github.com/AliceHenrySCT/WeatherApp" class="btn btn-primary">View GitHub</a>
+              <div class="project-links">
+                <a href="https://weatherapp-zsma.onrender.com" class="btn btn-accent me-2"><i class="fas fa-external-link-alt"></i> Live Demo</a>
+                <a href="https://github.com/AliceHenrySCT/WeatherApp" class="btn btn-outline-light"><i class="fab fa-github"></i> GitHub</a>
+              </div>
             </div>
           </div>
         </div>
         <!--div uses bootstrap to set the size of the third card on the webpage-->
-        <div class="col-md-6">
-          <div class="card">
+        <div class="col-lg-6 mb-4">
+          <div class="project-card">
             <img src="Images/NoteAppScreen.PNG" class="card-img-top" alt="Project 3">
-            <div class="card-body">
-              <h5 class="card-title">Notes App</h5>
-              <p class="card-text">Project 3 summary/description.</p>
-              <p class="card-text">Skills displayed: Full-stack development (React, Express, MongoDB), user authentication and secure account management and code documentation and modular architecture</p>
-              <p class="card-text">Things I learned: Implementing authentication systems and protecting user data, connecting front-end and back-end for smooth data flow, and structuring a project for scalability and maintainability</p>
-              <p class="card-text">Accomplishments: Delivered a collaborative note-taking app with account-based features, and enabled users to create, edit, and organize notes securely</p>
+            <div class="project-content">
+              <h5 class="project-title">Notes App</h5>
+              <p class="project-description">Collaborative note-taking application with secure user management</p>
+              <div class="project-details">
+                <div class="detail-section">
+                  <h6><i class="fas fa-code text-accent"></i> Skills Displayed</h6>
+                  <p>Full-stack development (React, Express, MongoDB), user authentication and secure account management</p>
+                </div>
+                <div class="detail-section">
+                  <h6><i class="fas fa-lightbulb text-accent"></i> Key Learnings</h6>
+                  <p>Implementing authentication systems, connecting front-end and back-end for smooth data flow, and structuring projects for scalability</p>
+                </div>
+                <div class="detail-section">
+                  <h6><i class="fas fa-trophy text-accent"></i> Accomplishments</h6>
+                  <p>Delivered a collaborative note-taking app with secure account-based features and intuitive organization</p>
+                </div>
+              </div>
               <!--Creates a button to Link to a seperate page for the project-->
-              <a href="#" class="btn btn-primary">View Project</a>
-              <a href="https://github.com/AliceHenrySCT/NotesApp" class="btn btn-primary">View GitHub</a>
+              <div class="project-links">
+                <a href="#" class="btn btn-accent me-2 disabled"><i class="fas fa-external-link-alt"></i> Live Demo</a>
+                <a href="https://github.com/AliceHenrySCT/NotesApp" class="btn btn-outline-light"><i class="fab fa-github"></i> GitHub</a>
+              </div>
             </div>
           </div>
         </div>
         <!--div uses bootstrap to set the size of the third card on the webpage-->
-        <div class="col-md-6">
-          <div class="card">
+        <div class="col-lg-6 mb-4">
+          <div class="project-card">
             <img src="Images/MemGameScreen.png" class="card-img-top" alt="Project 1">
-            <div class="card-body">
-              <h5 class="card-title">Memory Game</h5>
-              <p class="card-text">A test of your memory skills!</p>
-              <p class="card-text">Skills displayed: Interactive UI Design, DOM manipulation and event handling, and responsive layout and styling</p>
-              <p class="card-text">Things I learned: Debugging interactive behaviours, applying CSS for clean and consistent styling across varied devices, and structuring game logic for replayability</p>
-              <p class="card-text">Accomplishments: Built a fully functional Memory Game with intuitive controls and a polished interface, and developed clear, concise instructions and a user-friendly scoring system</p>
+            <div class="project-content">
+              <h5 class="project-title">Memory Game</h5>
+              <p class="project-description">Interactive memory challenge with progressive difficulty</p>
+              <div class="project-details">
+                <div class="detail-section">
+                  <h6><i class="fas fa-code text-accent"></i> Skills Displayed</h6>
+                  <p>Interactive UI Design, DOM manipulation and event handling, responsive layout and styling</p>
+                </div>
+                <div class="detail-section">
+                  <h6><i class="fas fa-lightbulb text-accent"></i> Key Learnings</h6>
+                  <p>Debugging interactive behaviors, applying CSS for consistent styling across devices, and structuring game logic for replayability</p>
+                </div>
+                <div class="detail-section">
+                  <h6><i class="fas fa-trophy text-accent"></i> Accomplishments</h6>
+                  <p>Built a fully functional Memory Game with intuitive controls and a user-friendly scoring system</p>
+                </div>
+              </div>
               <!--Creates a button to Link to a seperate page for the project-->
-              <a href="MemGame\memGame.html" class="btn btn-primary">View Project</a>
-              <a href="https://github.com/AliceHenrySCT/MemGame" class="btn btn-primary">View GitHub</a>
+              <div class="project-links">
+                <a href="MemGame/memGame.html" class="btn btn-accent me-2"><i class="fas fa-external-link-alt"></i> Live Demo</a>
+                <a href="https://github.com/AliceHenrySCT/MemGame" class="btn btn-outline-light"><i class="fab fa-github"></i> GitHub</a>
+              </div>
             </div>
           </div>
         </div>
@@ -138,21 +219,47 @@
   <!-- Contact Section -->
   <section id="contact" class="contact-section">
     <div class="container">
-      <h2>Contact Me</h2>
-      <p>If you're interested in working together or just want to say hello, feel free to reach out!</p>
-      <div class="social-icons">
-        <a href="#" target="_blank"><i class="bi bi-github"></i> GitHub</a>
-        <a href="#" target="_blank"><i class="bi bi-linkedin"></i> LinkedIn</a>
-        <a href="mailto:alicehenry431@gmail.com" target="_blank"><i class="bi bi-envelope"></i> Email</a>
+      <div class="row">
+        <div class="col-lg-8 mx-auto text-center">
+          <div class="section-header mb-5">
+            <h2 class="section-title">Let's Connect</h2>
+            <div class="section-divider"></div>
+            <p class="section-subtitle">Ready to collaborate or just want to say hello? I'd love to hear from you!</p>
+          </div>
+          <div class="contact-content">
+            <div class="social-icons">
+              <a href="#" target="_blank" class="social-link">
+                <i class="fab fa-github"></i>
+                <span>GitHub</span>
+              </a>
+              <a href="#" target="_blank" class="social-link">
+                <i class="fab fa-linkedin"></i>
+                <span>LinkedIn</span>
+              </a>
+              <a href="mailto:alicehenry431@gmail.com" target="_blank" class="social-link">
+                <i class="fas fa-envelope"></i>
+                <span>Email</span>
+              </a>
+            </div>
+          </div>
+        </div>
       </div>
     </div>
   </section>
 
   <!-- Footer -->
   <footer class="footer">
-    <p>&copy; 2025 Alice Henry | All rights reserved</p>
+    <div class="container">
+      <div class="row">
+        <div class="col-12 text-center">
+          <p class="footer-text">&copy; 2025 Alice Henry. Crafted with <i class="fas fa-heart text-accent"></i> and lots of coffee.</p>
+        </div>
+      </div>
+    </div>
   </footer>
 
+  <!-- Bootstrap JS -->
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 
 </html>

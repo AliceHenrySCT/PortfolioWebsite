@@ -1,0 +1,16 @@
+REMINDER: Add a screenshot of the AO3 Year in Review app
+
+To complete the portfolio integration, add a screenshot of your AO3 Year in Review app:
+
+1. Take a screenshot of the AO3 app interface
+2. Save it as: Images/AO3YearInReview.png
+3. Recommended dimensions: 1200x800 or similar 3:2 aspect ratio
+
+This will make the project card on your portfolio look complete!
+
+You can use a screenshot from:
+- The login page
+- The statistics results page
+- Any visually appealing part of the app
+
+Until you add this screenshot, the image will be broken on the portfolio page.

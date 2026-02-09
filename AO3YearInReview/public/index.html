@@ -1,0 +1,657 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AO3 History Scraper</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background: linear-gradient(135deg, #730008 0%, #4a0006 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 40px 20px;
+            line-height: 1.6;
+        }
+
+        .container {
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 25px 70px rgba(0, 0, 0, 0.5), 0 10px 25px rgba(0, 0, 0, 0.3);
+            width: 100%;
+            max-width: 540px;
+            padding: 50px;
+            transition: transform 0.3s ease;
+        }
+
+        @media (max-width: 640px) {
+            .container {
+                padding: 35px;
+            }
+        }
+
+        h1 {
+            color: #990011;
+            margin-bottom: 40px;
+            text-align: center;
+            font-size: 36px;
+            font-weight: 700;
+            letter-spacing: -1px;
+            line-height: 1.2;
+        }
+
+        .form-group {
+            margin-bottom: 24px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 10px;
+            color: #2c2c2c;
+            font-weight: 600;
+            font-size: 15px;
+            letter-spacing: 0.2px;
+        }
+
+        input[type="text"],
+        input[type="password"],
+        select {
+            width: 100%;
+            padding: 14px 16px;
+            border: 2px solid #ddd;
+            border-radius: 10px;
+            font-size: 15px;
+            transition: all 0.3s ease;
+            background-color: #fafafa;
+            font-family: inherit;
+        }
+
+        input[type="text"]:hover,
+        input[type="password"]:hover,
+        select:hover {
+            border-color: #bbb;
+            background-color: white;
+        }
+
+        input[type="text"]:focus,
+        input[type="password"]:focus,
+        select:focus {
+            outline: none;
+            border-color: #990011;
+            background-color: white;
+            box-shadow: 0 0 0 4px rgba(153, 0, 17, 0.08);
+        }
+
+        button {
+            width: 100%;
+            padding: 16px;
+            background: linear-gradient(135deg, #990011 0%, #b50014 100%);
+            color: white;
+            border: none;
+            border-radius: 10px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 14px rgba(153, 0, 17, 0.3);
+            margin-top: 8px;
+            letter-spacing: 0.3px;
+        }
+
+        button:hover {
+            background: linear-gradient(135deg, #b50014 0%, #d40018 100%);
+            transform: translateY(-2px);
+            box-shadow: 0 8px 24px rgba(153, 0, 17, 0.4);
+        }
+
+        button:active {
+            transform: translateY(0);
+            box-shadow: 0 4px 14px rgba(153, 0, 17, 0.3);
+        }
+
+        button:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        button:disabled:hover {
+            transform: none;
+        }
+
+        .loading {
+            display: none;
+            text-align: center;
+            margin: 20px 0;
+            color: #990011;
+            font-weight: 500;
+        }
+
+        .spinner {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 3px solid #e0e0e0;
+            border-top-color: #990011;
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+            margin-right: 10px;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        .progress-container {
+            display: none;
+            margin: 28px 0;
+            padding: 28px;
+            background: linear-gradient(135deg, #fafafa 0%, #f5f5f5 100%);
+            border-radius: 12px;
+            border-left: 5px solid #990011;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+        }
+
+        .progress-status {
+            font-size: 17px;
+            color: #2c2c2c;
+            margin-bottom: 20px;
+            font-weight: 600;
+            text-align: center;
+        }
+
+        .progress-counter {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 40px;
+            margin-top: 12px;
+        }
+
+        .progress-item {
+            text-align: center;
+            padding: 12px 20px;
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+        }
+
+        .progress-number {
+            font-size: 40px;
+            font-weight: 700;
+            color: #990011;
+            line-height: 1;
+            font-variant-numeric: tabular-nums;
+        }
+
+        .progress-label {
+            font-size: 13px;
+            color: #666;
+            margin-top: 8px;
+            font-weight: 500;
+            letter-spacing: 0.3px;
+        }
+
+        .error {
+            background: linear-gradient(135deg, #fee 0%, #fdd 100%);
+            color: #c33;
+            padding: 16px 20px;
+            border-radius: 10px;
+            margin-top: 24px;
+            display: none;
+            border: 2px solid #fcc;
+            box-shadow: 0 4px 12px rgba(204, 51, 51, 0.1);
+            font-weight: 500;
+        }
+
+        .results {
+            margin-top: 48px;
+            display: none;
+        }
+
+        .results h2 {
+            color: #990011;
+            margin-bottom: 28px;
+            font-size: 28px;
+            font-weight: 700;
+            letter-spacing: -0.8px;
+            line-height: 1.2;
+        }
+
+        .statistics {
+            background: linear-gradient(135deg, #fafafa 0%, #f5f5f5 100%);
+            padding: 32px;
+            border-radius: 16px;
+            margin-bottom: 40px;
+            border-left: 5px solid #990011;
+            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.06);
+        }
+
+        .statistics h3 {
+            color: #990011;
+            font-size: 26px;
+            margin-bottom: 28px;
+            font-weight: 700;
+            letter-spacing: -0.8px;
+            line-height: 1.2;
+        }
+
+        .stats-images {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 30px;
+            margin-bottom: 30px;
+            max-width: 1400px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        .stat-image-container {
+            background: white;
+            border-radius: 16px;
+            box-shadow: 0 6px 20px rgba(153, 0, 17, 0.12);
+            overflow: hidden;
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+            border: 1px solid rgba(153, 0, 17, 0.08);
+        }
+
+        .stat-image-container:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 12px 32px rgba(153, 0, 17, 0.2);
+            border-color: rgba(153, 0, 17, 0.15);
+        }
+
+        .stat-image {
+            width: 100%;
+            height: auto;
+            display: block;
+        }
+
+        .download-all-btn {
+            width: 100%;
+            padding: 16px;
+            margin-top: 28px;
+            background: linear-gradient(135deg, #990011 0%, #b50014 100%);
+            color: white;
+            border: none;
+            border-radius: 10px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: none;
+            box-shadow: 0 4px 14px rgba(153, 0, 17, 0.3);
+            letter-spacing: 0.3px;
+        }
+
+        .download-all-btn:hover {
+            background: linear-gradient(135deg, #b50014 0%, #d40018 100%);
+            transform: translateY(-2px);
+            box-shadow: 0 8px 24px rgba(153, 0, 17, 0.4);
+        }
+
+        .download-all-btn:active {
+            transform: translateY(0);
+            box-shadow: 0 4px 14px rgba(153, 0, 17, 0.3);
+        }
+
+        .download-all-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .history-list {
+            list-style: none;
+        }
+
+        .history-item {
+            padding: 20px;
+            background: linear-gradient(135deg, #fafafa 0%, #f5f5f5 100%);
+            border-radius: 10px;
+            margin-bottom: 14px;
+            border-left: 4px solid #990011;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.04);
+        }
+
+        .history-item:hover {
+            transform: translateX(6px);
+            box-shadow: 0 6px 16px rgba(0, 0, 0, 0.08);
+            background: linear-gradient(135deg, #ffffff 0%, #fafafa 100%);
+        }
+
+        .history-title {
+            font-weight: 600;
+            color: #2c2c2c;
+            margin-bottom: 6px;
+            font-size: 16px;
+            line-height: 1.5;
+        }
+
+        .history-author {
+            color: #666;
+            font-size: 14px;
+            margin-bottom: 10px;
+            font-weight: 500;
+        }
+
+        .history-link {
+            color: #990011;
+            text-decoration: none;
+            font-size: 13px;
+            word-break: break-all;
+            font-weight: 600;
+            transition: color 0.2s;
+        }
+
+        .history-link:hover {
+            text-decoration: underline;
+            color: #b50014;
+        }
+
+        .count {
+            color: #999;
+            font-size: 15px;
+            margin-top: 24px;
+            text-align: center;
+            font-weight: 500;
+            letter-spacing: 0.2px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>AO3 History Scraper</h1>
+
+        <form id="scraperForm">
+            <div class="form-group">
+                <label for="username">Username</label>
+                <input type="text" id="username" name="username" required>
+            </div>
+
+            <div class="form-group">
+                <label for="password">Password</label>
+                <input type="password" id="password" name="password" required>
+            </div>
+
+            <div class="form-group">
+                <label for="year">Year</label>
+                <select id="year" name="year">
+                    <option value="">All Years</option>
+                </select>
+            </div>
+
+            <button type="submit" id="submitBtn">Scrape History</button>
+        </form>
+
+        <div class="loading" id="loading">
+            <span class="spinner"></span>Fetching your reading history...
+        </div>
+
+        <div class="progress-container" id="progressContainer">
+            <div class="progress-status" id="progressStatus">Starting scrape...</div>
+            <div class="progress-counter">
+                <div class="progress-item">
+                    <div class="progress-number" id="currentPage">0</div>
+                    <div class="progress-label">Current Page</div>
+                </div>
+                <div class="progress-item">
+                    <div class="progress-number" id="totalItems">0</div>
+                    <div class="progress-label">Items Found</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="error" id="error"></div>
+
+        <div class="results" id="results">
+            <div class="statistics" id="statistics">
+                <h3>Reading Statistics</h3>
+                <div class="stats-images">
+                    <div class="stat-image-container" id="overallContainer" style="display: none;">
+                        <img id="overallStatsImage" class="stat-image" alt="Overall Stats">
+                    </div>
+                    <div class="stat-image-container" id="shipsContainer" style="display: none;">
+                        <img id="shipsImage" class="stat-image" alt="Top Ships">
+                    </div>
+                    <div class="stat-image-container" id="tagsContainer" style="display: none;">
+                        <img id="tagsImage" class="stat-image" alt="Top Tags">
+                    </div>
+                    <div class="stat-image-container" id="fandomsContainer" style="display: none;">
+                        <img id="fandomsImage" class="stat-image" alt="Top Fandoms">
+                    </div>
+                </div>
+                <button class="download-all-btn" id="downloadAllBtn" onclick="downloadAllImages()">Download All Images</button>
+            </div>
+
+            <h2>Your Reading History</h2>
+            <ul class="history-list" id="historyList"></ul>
+            <div class="count" id="count"></div>
+        </div>
+    </div>
+
+    <script>
+        const form = document.getElementById('scraperForm');
+        const loading = document.getElementById('loading');
+        const error = document.getElementById('error');
+        const results = document.getElementById('results');
+        const historyList = document.getElementById('historyList');
+        const count = document.getElementById('count');
+        const submitBtn = document.getElementById('submitBtn');
+        const yearSelect = document.getElementById('year');
+
+        const currentYear = new Date().getFullYear();
+        for (let year = currentYear; year >= 2008; year--) {
+            const option = document.createElement('option');
+            option.value = year;
+            option.textContent = year;
+            yearSelect.appendChild(option);
+        }
+
+        let eventSource = null;
+
+        form.addEventListener('submit', async (e) => {
+            e.preventDefault();
+
+            const username = document.getElementById('username').value;
+            const password = document.getElementById('password').value;
+            const year = document.getElementById('year').value;
+
+            loading.style.display = 'block';
+            document.getElementById('progressContainer').style.display = 'block';
+            error.style.display = 'none';
+            results.style.display = 'none';
+            submitBtn.disabled = true;
+
+            document.getElementById('currentPage').textContent = '0';
+            document.getElementById('totalItems').textContent = '0';
+            document.getElementById('progressStatus').textContent = 'Starting scrape...';
+
+            if (eventSource) {
+                eventSource.close();
+            }
+
+            const params = new URLSearchParams({ username, password, year });
+            eventSource = new EventSource(`/api/scrape-stream?${params.toString()}`);
+
+            eventSource.addEventListener('progress', (e) => {
+                const data = JSON.parse(e.data);
+                document.getElementById('currentPage').textContent = data.currentPage;
+                document.getElementById('totalItems').textContent = data.totalItems;
+                document.getElementById('progressStatus').textContent = data.status;
+            });
+
+            eventSource.addEventListener('complete', (e) => {
+                const data = JSON.parse(e.data);
+                eventSource.close();
+                loading.style.display = 'none';
+                document.getElementById('progressContainer').style.display = 'none';
+                submitBtn.disabled = false;
+                displayResults(data.items, data.statistics);
+            });
+
+            eventSource.addEventListener('error', (e) => {
+                eventSource.close();
+                loading.style.display = 'none';
+                document.getElementById('progressContainer').style.display = 'none';
+                submitBtn.disabled = false;
+
+                if (e.data) {
+                    try {
+                        const errorData = JSON.parse(e.data);
+                        error.textContent = errorData.error || 'Failed to scrape history';
+                    } catch {
+                        error.textContent = 'Failed to scrape history';
+                    }
+                } else {
+                    error.textContent = 'Connection lost. Please try again.';
+                }
+                error.style.display = 'block';
+            });
+
+            eventSource.onerror = (e) => {
+                if (eventSource.readyState === EventSource.CLOSED) {
+                    eventSource.close();
+                    loading.style.display = 'none';
+                    document.getElementById('progressContainer').style.display = 'none';
+                    submitBtn.disabled = false;
+                }
+            };
+        });
+
+        function formatNumber(num) {
+            if (num >= 1000000) {
+                return (num / 1000000).toFixed(1) + 'M';
+            }
+            if (num >= 1000) {
+                return (num / 1000).toFixed(1) + 'K';
+            }
+            return num.toString();
+        }
+
+        function displayResults(items, statistics) {
+            historyList.innerHTML = '';
+
+            if (!items || items.length === 0) {
+                count.textContent = 'No reading history found.';
+                results.style.display = 'block';
+                return;
+            }
+
+            // Display stat images
+            if (statistics.imagePaths) {
+                const overallImg = document.getElementById('overallStatsImage');
+                const shipsImg = document.getElementById('shipsImage');
+                const tagsImg = document.getElementById('tagsImage');
+                const fandomsImg = document.getElementById('fandomsImage');
+
+                const overallContainer = document.getElementById('overallContainer');
+                const shipsContainer = document.getElementById('shipsContainer');
+                const tagsContainer = document.getElementById('tagsContainer');
+                const fandomsContainer = document.getElementById('fandomsContainer');
+
+                let hasImages = false;
+
+                if (statistics.imagePaths.overall) {
+                    overallImg.src = statistics.imagePaths.overall + '?t=' + Date.now();
+                    overallContainer.style.display = 'block';
+                    hasImages = true;
+                }
+
+                if (statistics.imagePaths.ships) {
+                    shipsImg.src = statistics.imagePaths.ships + '?t=' + Date.now();
+                    shipsContainer.style.display = 'block';
+                    hasImages = true;
+                }
+
+                if (statistics.imagePaths.tags) {
+                    tagsImg.src = statistics.imagePaths.tags + '?t=' + Date.now();
+                    tagsContainer.style.display = 'block';
+                    hasImages = true;
+                }
+
+                if (statistics.imagePaths.fandoms) {
+                    fandomsImg.src = statistics.imagePaths.fandoms + '?t=' + Date.now();
+                    fandomsContainer.style.display = 'block';
+                    hasImages = true;
+                }
+
+                if (hasImages) {
+                    document.getElementById('downloadAllBtn').style.display = 'block';
+                }
+            }
+
+            items.forEach((item) => {
+                const li = document.createElement('li');
+                li.className = 'history-item';
+                li.innerHTML = `
+                    <div class="history-title">${escapeHtml(item.title)}</div>
+                    <div class="history-author">by ${escapeHtml(item.author)}</div>
+                    <a href="${escapeHtml(item.url)}" target="_blank" class="history-link">${escapeHtml(item.url)}</a>
+                `;
+                historyList.appendChild(li);
+            });
+
+            count.textContent = `Total: ${items.length} work${items.length !== 1 ? 's' : ''}`;
+            results.style.display = 'block';
+        }
+
+        function escapeHtml(text) {
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
+
+        async function downloadAllImages() {
+            const imageTypes = [
+                { type: 'overall', filename: 'overall_stats.png', container: 'overallContainer' },
+                { type: 'ships', filename: 'top_ships.png', container: 'shipsContainer' },
+                { type: 'tags', filename: 'top_tags.png', container: 'tagsContainer' },
+                { type: 'fandoms', filename: 'top_fandoms.png', container: 'fandomsContainer' }
+            ];
+
+            const btn = document.getElementById('downloadAllBtn');
+            const originalText = btn.textContent;
+            btn.textContent = 'Downloading...';
+            btn.disabled = true;
+
+            try {
+                for (const image of imageTypes) {
+                    const container = document.getElementById(image.container);
+                    if (container && container.style.display !== 'none') {
+                        const response = await fetch(`/api/stats-image/${image.type}`);
+                        if (response.ok) {
+                            const blob = await response.blob();
+                            const url = window.URL.createObjectURL(blob);
+                            const a = document.createElement('a');
+                            a.href = url;
+                            a.download = image.filename;
+                            document.body.appendChild(a);
+                            a.click();
+                            window.URL.revokeObjectURL(url);
+                            document.body.removeChild(a);
+                            await new Promise(resolve => setTimeout(resolve, 300));
+                        }
+                    }
+                }
+            } catch (err) {
+                console.error('Error downloading images:', err);
+                alert('Failed to download some images. Please try again.');
+            } finally {
+                btn.textContent = originalText;
+                btn.disabled = false;
+            }
+        }
+    </script>
+</body>
+</html>

@@ -1,145 +1,199 @@
-from flask import Flask, request, jsonify, send_from_directory, Response, send_file
+from flask import (
+    Flask,
+    request,
+    jsonify,
+    send_from_directory,
+    Response,
+    send_file
+)
 from flask_cors import CORS
+from werkzeug.middleware.proxy_fix import ProxyFix
+
 import json
 import sys
 import os
 from ao3_scraper import scrape_ao3_history
 from image_generator import generate_all_stat_images
 
-app = Flask(__name__, static_folder='public')
-CORS(app)
 
-print('Python version:', sys.version)
-print('Flask and scraper loaded successfully')
+# --------------------
+# Flask app setup
+# --------------------
 
-from werkzeug.middleware.proxy_fix import ProxyFix
+app = Flask(
+    __name__,
+    static_folder="public",
+    static_url_path="/static"
+)
+
+# IMPORTANT: tell Flask it is mounted under a prefix
+app.config["APPLICATION_ROOT"] = "/AO3YearInReview"
+
+# Respect reverse proxy headers
 app.wsgi_app = ProxyFix(app.wsgi_app, x_prefix=1)
 
-@app.route('/')
+CORS(app)
+
+print("Python version:", sys.version)
+print("Flask and scraper loaded successfully")
+
+
+# --------------------
+# Routes
+# --------------------
+
+@app.route("/")
 def index():
-    return send_from_directory('public', 'index.html')
+    """
+    Serve the frontend index.html.
+    This works both locally and under /AO3YearInReview/.
+    """
+    return send_from_directory(app.static_folder, "index.html")
 
 
-@app.route('/api/health', methods=['GET'])
+@app.route("/api/health", methods=["GET"])
 def health():
-    return jsonify({'status': 'ok', 'timestamp': str(__import__('datetime').datetime.now().isoformat())})
+    return jsonify({
+        "status": "ok",
+        "timestamp": __import__("datetime").datetime.now().isoformat()
+    })
 
 
-@app.route('/api/debug', methods=['GET'])
+@app.route("/api/debug", methods=["GET"])
 def debug():
-    file_type = request.args.get('file', 'login')
+    file_type = request.args.get("file", "login")
 
-    if file_type == 'item':
-        debug_file = '/tmp/cc-agent/ao3_first_item_debug.html'
+    if file_type == "item":
+        debug_file = "/tmp/cc-agent/ao3_first_item_debug.html"
     else:
-        debug_file = '/tmp/cc-agent/ao3_login_page_debug.html'
+        debug_file = "/tmp/cc-agent/ao3_login_page_debug.html"
 
     if os.path.exists(debug_file):
-        with open(debug_file, 'r', encoding='utf-8') as f:
+        with open(debug_file, "r", encoding="utf-8") as f:
             content = f.read()
         return jsonify({
-            'found': True,
-            'content': content,
-            'length': len(content),
-            'file': debug_file
+            "found": True,
+            "content": content,
+            "length": len(content),
+            "file": debug_file
         })
-    return jsonify({'found': False, 'message': f'Debug file not found: {debug_file}'})
+
+    return jsonify({
+        "found": False,
+        "message": f"Debug file not found: {debug_file}"
+    })
 
 
-@app.route('/api/stats-image/<image_type>', methods=['GET'])
+@app.route("/api/stats-image/<image_type>", methods=["GET"])
 def get_stats_image(image_type):
-    """Serve generated stat images"""
     image_files = {
-        'ships': 'top_ships.png',
-        'tags': 'top_tags.png',
-        'fandoms': 'top_fandoms.png',
-        'overall': 'overall_stats.png'
+        "ships": "top_ships.png",
+        "tags": "top_tags.png",
+        "fandoms": "top_fandoms.png",
+        "overall": "overall_stats.png"
     }
 
     if image_type not in image_files:
-        return jsonify({'error': 'Invalid image type'}), 400
+        return jsonify({"error": "Invalid image type"}), 400
 
-    image_path = os.path.join('/tmp/ao3_stats', image_files[image_type])
+    image_path = os.path.join("/tmp/ao3_stats", image_files[image_type])
 
     if not os.path.exists(image_path):
-        return jsonify({'error': 'Image not found. Please run scraper first.'}), 404
+        return jsonify({
+            "error": "Image not found. Please run scraper first."
+        }), 404
 
-    return send_file(image_path, mimetype='image/png')
+    return send_file(image_path, mimetype="image/png")
 
+
+# --------------------
+# Stats calculation
+# --------------------
 
 def calculate_statistics(history_items):
     stats = {
-        'totalFics': len(history_items),
-        'totalWords': 0,
-        'topTags': [],
-        'topShips': [],
-        'topFandoms': [],
-        'longestFic': {
-            'title': '',
-            'wordCount': 0,
-            'author': '',
-            'url': ''
+        "totalFics": len(history_items),
+        "totalWords": 0,
+        "topTags": [],
+        "topShips": [],
+        "topFandoms": [],
+        "longestFic": {
+            "title": "",
+            "wordCount": 0,
+            "author": "",
+            "url": ""
         }
     }
 
     tag_counts = {}
     ship_counts = {}
     fandom_counts = {}
-    longest_fic = None
 
     for item in history_items:
-        word_count = item.get('wordCount', 0)
-        stats['totalWords'] += word_count
+        word_count = item.get("wordCount", 0)
+        stats["totalWords"] += word_count
 
-        # Track longest fic
-        if word_count > stats['longestFic']['wordCount']:
-            stats['longestFic'] = {
-                'title': item.get('title', ''),
-                'wordCount': word_count,
-                'author': item.get('author', ''),
-                'url': item.get('url', '')
+        if word_count > stats["longestFic"]["wordCount"]:
+            stats["longestFic"] = {
+                "title": item.get("title", ""),
+                "wordCount": word_count,
+                "author": item.get("author", ""),
+                "url": item.get("url", "")
             }
 
-        for tag in item.get('tags', []):
+        for tag in item.get("tags", []):
             tag_counts[tag] = tag_counts.get(tag, 0) + 1
 
-        for ship in item.get('relationships', []):
+        for ship in item.get("relationships", []):
             ship_counts[ship] = ship_counts.get(ship, 0) + 1
 
-        for fandom in item.get('fandoms', []):
+        for fandom in item.get("fandoms", []):
             fandom_counts[fandom] = fandom_counts.get(fandom, 0) + 1
 
-    # Sort and get top 10
-    stats['topTags'] = [
-        {'tag': tag, 'count': count}
-        for tag, count in sorted(tag_counts.items(), key=lambda x: x[1], reverse=True)[:10]
+    stats["topTags"] = [
+        {"tag": tag, "count": count}
+        for tag, count in sorted(
+            tag_counts.items(),
+            key=lambda x: x[1],
+            reverse=True
+        )[:10]
     ]
 
-    stats['topShips'] = [
-        {'ship': ship, 'count': count}
-        for ship, count in sorted(ship_counts.items(), key=lambda x: x[1], reverse=True)[:10]
+    stats["topShips"] = [
+        {"ship": ship, "count": count}
+        for ship, count in sorted(
+            ship_counts.items(),
+            key=lambda x: x[1],
+            reverse=True
+        )[:10]
     ]
 
-    stats['topFandoms'] = [
-        {'fandom': fandom, 'count': count}
-        for fandom, count in sorted(fandom_counts.items(), key=lambda x: x[1], reverse=True)[:10]
+    stats["topFandoms"] = [
+        {"fandom": fandom, "count": count}
+        for fandom, count in sorted(
+            fandom_counts.items(),
+            key=lambda x: x[1],
+            reverse=True
+        )[:10]
     ]
 
     return stats
 
 
-@app.route('/api/scrape-stream', methods=['GET'])
+# --------------------
+# Scraping routes
+# --------------------
+
+@app.route("/api/scrape-stream", methods=["GET"])
 def scrape_stream():
-    username = request.args.get('username')
-    password = request.args.get('password')
-    year = request.args.get('year')
+    username = request.args.get("username")
+    password = request.args.get("password")
+    year = request.args.get("year")
 
     if not username or not password:
-        def error_generator():
-            yield f'event: error\ndata: {json.dumps({"error": "Username and password required"})}\n\n'
-        return Response(error_generator(), mimetype='text/event-stream')
-
-    print(f'Starting scrape for user: {username}{f" (Year: {year})" if year else ""}')
+        def error_gen():
+            yield f"event: error\ndata: {json.dumps({'error': 'Username and password required'})}\n\n"
+        return Response(error_gen(), mimetype="text/event-stream")
 
     def generate():
         progress_queue = []
@@ -148,15 +202,14 @@ def scrape_stream():
             progress_queue.append(progress_data)
 
         try:
-            # Start scraping in a way that allows us to yield progress
             import threading
             import time
 
-            scrape_result = {'items': None, 'error': None}
+            result = {"items": None, "error": None}
 
             def scrape_thread():
                 try:
-                    scrape_result['items'] = scrape_ao3_history(
+                    result["items"] = scrape_ao3_history(
                         username,
                         password,
                         year if year else None,
@@ -164,101 +217,90 @@ def scrape_stream():
                         on_progress=on_progress
                     )
                 except Exception as e:
-                    scrape_result['error'] = e
+                    result["error"] = e
 
             thread = threading.Thread(target=scrape_thread)
             thread.start()
 
-            # Yield progress updates while scraping
             while thread.is_alive():
                 while progress_queue:
-                    progress_data = progress_queue.pop(0)
-                    yield f'event: progress\ndata: {json.dumps(progress_data)}\n\n'
+                    yield f"event: progress\ndata: {json.dumps(progress_queue.pop(0))}\n\n"
                 time.sleep(0.5)
 
-            # Yield any remaining progress updates
             while progress_queue:
-                progress_data = progress_queue.pop(0)
-                yield f'event: progress\ndata: {json.dumps(progress_data)}\n\n'
+                yield f"event: progress\ndata: {json.dumps(progress_queue.pop(0))}\n\n"
 
-            # Check for errors
-            if scrape_result['error']:
-                raise scrape_result['error']
+            if result["error"]:
+                raise result["error"]
 
-            history_items = scrape_result['items']
-            print(f'Successfully scraped {len(history_items)} items')
-
+            history_items = result["items"]
             statistics = calculate_statistics(history_items)
 
-            # Generate stat images
-            print('Generating stat images...')
             try:
-                image_paths = generate_all_stat_images(statistics)
-                statistics['imagePaths'] = {
-                    'ships': '/api/stats-image/ships',
-                    'tags': '/api/stats-image/tags',
-                    'fandoms': '/api/stats-image/fandoms',
-                    'overall': '/api/stats-image/overall'
+                generate_all_stat_images(statistics)
+                statistics["imagePaths"] = {
+                    "ships": "/api/stats-image/ships",
+                    "tags": "/api/stats-image/tags",
+                    "fandoms": "/api/stats-image/fandoms",
+                    "overall": "/api/stats-image/overall"
                 }
-                print('Stat images generated successfully')
-            except Exception as img_error:
-                print(f'Error generating images: {img_error}')
-                statistics['imagePaths'] = {}
+            except Exception:
+                statistics["imagePaths"] = {}
 
-            yield f'event: complete\ndata: {json.dumps({"items": history_items, "statistics": statistics})}\n\n'
-        except Exception as error:
-            print('Scraping error:', str(error))
-            yield f'event: error\ndata: {json.dumps({"error": str(error) or "Failed to scrape history"})}\n\n'
+            yield f"event: complete\ndata: {json.dumps({'items': history_items, 'statistics': statistics})}\n\n"
 
-    return Response(generate(), mimetype='text/event-stream')
+        except Exception as e:
+            yield f"event: error\ndata: {json.dumps({'error': str(e)})}\n\n"
+
+    return Response(generate(), mimetype="text/event-stream")
 
 
-@app.route('/api/scrape', methods=['POST'])
+@app.route("/api/scrape", methods=["POST"])
 def scrape():
-    data = request.json
-    username = data.get('username')
-    password = data.get('password')
-    year = data.get('year')
+    data = request.json or {}
+    username = data.get("username")
+    password = data.get("password")
+    year = data.get("year")
 
     if not username or not password:
-        return jsonify({'error': 'Username and password required'}), 400
-
-    print(f'Starting scrape for user: {username}{f" (Year: {year})" if year else ""}')
+        return jsonify({"error": "Username and password required"}), 400
 
     try:
-        history_items = scrape_ao3_history(username, password, year if year else None)
-        print(f'Successfully scraped {len(history_items)} items')
+        history_items = scrape_ao3_history(
+            username,
+            password,
+            year if year else None
+        )
 
         statistics = calculate_statistics(history_items)
 
-        # Generate stat images
-        print('Generating stat images...')
         try:
-            image_paths = generate_all_stat_images(statistics)
-            statistics['imagePaths'] = {
-                'ships': '/api/stats-image/ships',
-                'tags': '/api/stats-image/tags',
-                'fandoms': '/api/stats-image/fandoms',
-                'overall': '/api/stats-image/overall'
+            generate_all_stat_images(statistics)
+            statistics["imagePaths"] = {
+                "ships": "/api/stats-image/ships",
+                "tags": "/api/stats-image/tags",
+                "fandoms": "/api/stats-image/fandoms",
+                "overall": "/api/stats-image/overall"
             }
-            print('Stat images generated successfully')
-        except Exception as img_error:
-            print(f'Error generating images: {img_error}')
-            statistics['imagePaths'] = {}
+        except Exception:
+            statistics["imagePaths"] = {}
 
         return jsonify({
-            'items': history_items,
-            'statistics': statistics
+            "items": history_items,
+            "statistics": statistics
         })
-    except Exception as error:
-        print('Scraping error:', str(error))
+
+    except Exception as e:
         return jsonify({
-            'error': str(error) or 'Failed to scrape history. Please check your credentials.'
+            "error": str(e) or "Failed to scrape history"
         }), 500
 
 
-if __name__ == '__main__':
-    port = int(__import__('os').environ.get('PORT', 3000))
-    print(f'Server running on http://localhost:{port}')
-    print(f'Health check available at: http://localhost:{port}/api/health')
-    app.run(host='0.0.0.0', port=port, debug=False)
+# --------------------
+# Local dev only
+# --------------------
+
+if __name__ == "__main__":
+    port = int(os.environ.get("PORT", 3000))
+    print(f"Server running on http://localhost:{port}")
+    app.run(host="0.0.0.0", port=port, debug=False)

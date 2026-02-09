@@ -12,6 +12,8 @@ CORS(app)
 print('Python version:', sys.version)
 print('Flask and scraper loaded successfully')
 
+app = Flask(__name__)
+app.config["APPLICATION_ROOT"] = "/ao3review"
 
 @app.route('/')
 def index():

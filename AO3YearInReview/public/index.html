@@ -482,7 +482,7 @@
             }
 
             const params = new URLSearchParams({ username, password, year });
-            eventSource = new EventSource(`/api/scrape-stream?${params.toString()}`);
+            eventSource = new EventSource(`api/scrape-stream?${params.toString()}`);
 
             eventSource.addEventListener('progress', (e) => {
                 const data = JSON.parse(e.data);

@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>AO3 History Scraper</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
     <style>
         * {
             margin: 0;
@@ -622,27 +623,42 @@
 
             const btn = document.getElementById('downloadAllBtn');
             const originalText = btn.textContent;
-            btn.textContent = 'Downloading...';
+            btn.textContent = 'Creating ZIP...';
             btn.disabled = true;
 
             try {
+                const zip = new JSZip();
+                let hasImages = false;
+
                 for (const image of imageTypes) {
                     const container = document.getElementById(image.container);
                     const img = document.getElementById(image.imgId);
 
                     if (container && container.style.display !== 'none' && img && img.src) {
-                        const a = document.createElement('a');
-                        a.href = img.src;
-                        a.download = image.filename;
-                        document.body.appendChild(a);
-                        a.click();
-                        document.body.removeChild(a);
-                        await new Promise(resolve => setTimeout(resolve, 300));
+                        const base64Data = img.src.split(',')[1];
+                        zip.file(image.filename, base64Data, { base64: true });
+                        hasImages = true;
                     }
+                }
+
+                if (hasImages) {
+                    btn.textContent = 'Generating ZIP...';
+                    const blob = await zip.generateAsync({ type: 'blob' });
+
+                    const url = window.URL.createObjectURL(blob);
+                    const a = document.createElement('a');
+                    a.href = url;
+                    a.download = 'ao3_statistics.zip';
+                    document.body.appendChild(a);
+                    a.click();
+                    window.URL.revokeObjectURL(url);
+                    document.body.removeChild(a);
+                } else {
+                    alert('No images available to download.');
                 }
             } catch (err) {
                 console.error('Error downloading images:', err);
-                alert('Failed to download some images. Please try again.');
+                alert('Failed to download images. Please try again.');
             } finally {
                 btn.textContent = originalText;
                 btn.disabled = false;

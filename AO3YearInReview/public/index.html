@@ -549,7 +549,7 @@
             }
 
             // Display stat images
-            if (statistics.imagePaths) {
+            if (statistics.imageData) {
                 const overallImg = document.getElementById('overallStatsImage');
                 const shipsImg = document.getElementById('shipsImage');
                 const tagsImg = document.getElementById('tagsImage');
@@ -562,26 +562,26 @@
 
                 let hasImages = false;
 
-                if (statistics.imagePaths.overall) {
-                    overallImg.src = statistics.imagePaths.overall + '?t=' + Date.now();
+                if (statistics.imageData.overall) {
+                    overallImg.src = statistics.imageData.overall;
                     overallContainer.style.display = 'block';
                     hasImages = true;
                 }
 
-                if (statistics.imagePaths.ships) {
-                    shipsImg.src = statistics.imagePaths.ships + '?t=' + Date.now();
+                if (statistics.imageData.ships) {
+                    shipsImg.src = statistics.imageData.ships;
                     shipsContainer.style.display = 'block';
                     hasImages = true;
                 }
 
-                if (statistics.imagePaths.tags) {
-                    tagsImg.src = statistics.imagePaths.tags + '?t=' + Date.now();
+                if (statistics.imageData.tags) {
+                    tagsImg.src = statistics.imageData.tags;
                     tagsContainer.style.display = 'block';
                     hasImages = true;
                 }
 
-                if (statistics.imagePaths.fandoms) {
-                    fandomsImg.src = statistics.imagePaths.fandoms + '?t=' + Date.now();
+                if (statistics.imageData.fandoms) {
+                    fandomsImg.src = statistics.imageData.fandoms;
                     fandomsContainer.style.display = 'block';
                     hasImages = true;
                 }
@@ -614,10 +614,10 @@
 
         async function downloadAllImages() {
             const imageTypes = [
-                { type: 'overall', filename: 'overall_stats.png', container: 'overallContainer' },
-                { type: 'ships', filename: 'top_ships.png', container: 'shipsContainer' },
-                { type: 'tags', filename: 'top_tags.png', container: 'tagsContainer' },
-                { type: 'fandoms', filename: 'top_fandoms.png', container: 'fandomsContainer' }
+                { type: 'overall', filename: 'overall_stats.png', container: 'overallContainer', imgId: 'overallStatsImage' },
+                { type: 'ships', filename: 'top_ships.png', container: 'shipsContainer', imgId: 'shipsImage' },
+                { type: 'tags', filename: 'top_tags.png', container: 'tagsContainer', imgId: 'tagsImage' },
+                { type: 'fandoms', filename: 'top_fandoms.png', container: 'fandomsContainer', imgId: 'fandomsImage' }
             ];
 
             const btn = document.getElementById('downloadAllBtn');
@@ -628,20 +628,16 @@
             try {
                 for (const image of imageTypes) {
                     const container = document.getElementById(image.container);
-                    if (container && container.style.display !== 'none') {
-                        const response = await fetch(`/api/stats-image/${image.type}`);
-                        if (response.ok) {
-                            const blob = await response.blob();
-                            const url = window.URL.createObjectURL(blob);
-                            const a = document.createElement('a');
-                            a.href = url;
-                            a.download = image.filename;
-                            document.body.appendChild(a);
-                            a.click();
-                            window.URL.revokeObjectURL(url);
-                            document.body.removeChild(a);
-                            await new Promise(resolve => setTimeout(resolve, 300));
-                        }
+                    const img = document.getElementById(image.imgId);
+
+                    if (container && container.style.display !== 'none' && img && img.src) {
+                        const a = document.createElement('a');
+                        a.href = img.src;
+                        a.download = image.filename;
+                        document.body.appendChild(a);
+                        a.click();
+                        document.body.removeChild(a);
+                        await new Promise(resolve => setTimeout(resolve, 300));
                     }
                 }
             } catch (err) {

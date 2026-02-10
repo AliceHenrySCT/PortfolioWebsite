@@ -6,8 +6,7 @@ from flask import (
     request,
     jsonify,
     send_from_directory,
-    Response,
-    send_file
+    Response
 )
 from flask_cors import CORS
 from werkzeug.middleware.proxy_fix import ProxyFix
@@ -89,26 +88,6 @@ def debug():
     })
 
 
-@app.route("/api/stats-image/<image_type>", methods=["GET"])
-def get_stats_image(image_type):
-    image_files = {
-        "ships": "top_ships.png",
-        "tags": "top_tags.png",
-        "fandoms": "top_fandoms.png",
-        "overall": "overall_stats.png"
-    }
-
-    if image_type not in image_files:
-        return jsonify({"error": "Invalid image type"}), 400
-
-    image_path = os.path.join("/tmp/ao3_stats", image_files[image_type])
-
-    if not os.path.exists(image_path):
-        return jsonify({
-            "error": "Image not found. Please run scraper first."
-        }), 404
-
-    return send_file(image_path, mimetype="image/png")
 
 
 # --------------------
@@ -222,16 +201,11 @@ def scrape_stream():
                 stats = calculate_statistics(items)
 
                 try:
-                    generate_all_stat_images(stats)
-                    stats['imagePaths'] = {
-                        'ships': '/api/stats-image/ships',
-                        'tags': '/api/stats-image/tags',
-                        'fandoms': '/api/stats-image/fandoms',
-                        'overall': '/api/stats-image/overall'
-                    }
+                    image_data = generate_all_stat_images(stats)
+                    stats['imageData'] = image_data
                 except Exception as img_err:
                     print("Image generation error:", img_err)
-                    stats['imagePaths'] = {}
+                    stats['imageData'] = {}
 
                 q.put(('complete', {'items': items, 'statistics': stats}))
 
@@ -281,15 +255,10 @@ def scrape():
         statistics = calculate_statistics(history_items)
 
         try:
-            generate_all_stat_images(statistics)
-            statistics["imagePaths"] = {
-                "ships": "/api/stats-image/ships",
-                "tags": "/api/stats-image/tags",
-                "fandoms": "/api/stats-image/fandoms",
-                "overall": "/api/stats-image/overall"
-            }
+            image_data = generate_all_stat_images(statistics)
+            statistics["imageData"] = image_data
         except Exception:
-            statistics["imagePaths"] = {}
+            statistics["imageData"] = {}
 
         return jsonify({
             "items": history_items,

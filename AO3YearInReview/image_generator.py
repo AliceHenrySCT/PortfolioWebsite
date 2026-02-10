@@ -1,5 +1,7 @@
 from PIL import Image, ImageDraw, ImageFont
 import os
+import io
+import base64
 
 def create_gradient(width, height, color1, color2):
     """Create a subtle vertical gradient from color1 to color2"""
@@ -59,8 +61,8 @@ def wrap_text(text, font, max_width, draw):
 
     return lines
 
-def create_top_ships_image(ships, output_path):
-    """Create an image showing top 5 ships"""
+def create_top_ships_image(ships):
+    """Create an image showing top 5 ships and return as base64"""
     width, height = 1080, 1920
 
     # Create subtle gradient background (AO3 maroon shades)
@@ -128,11 +130,15 @@ def create_top_ships_image(ships, output_path):
 
         y_offset += 250
 
-    img.save(output_path, 'PNG')
-    return output_path
+    # Save to BytesIO and return base64
+    buffer = io.BytesIO()
+    img.save(buffer, format='PNG')
+    buffer.seek(0)
+    img_base64 = base64.b64encode(buffer.getvalue()).decode('utf-8')
+    return f'data:image/png;base64,{img_base64}'
 
-def create_top_tags_image(tags, output_path):
-    """Create an image showing top 5 tags"""
+def create_top_tags_image(tags):
+    """Create an image showing top 5 tags and return as base64"""
     width, height = 1080, 1920
 
     # Create subtle gradient background (dark maroon to AO3 maroon)
@@ -200,11 +206,15 @@ def create_top_tags_image(tags, output_path):
 
         y_offset += 250
 
-    img.save(output_path, 'PNG')
-    return output_path
+    # Save to BytesIO and return base64
+    buffer = io.BytesIO()
+    img.save(buffer, format='PNG')
+    buffer.seek(0)
+    img_base64 = base64.b64encode(buffer.getvalue()).decode('utf-8')
+    return f'data:image/png;base64,{img_base64}'
 
-def create_top_fandoms_image(fandoms, output_path):
-    """Create an image showing top 5 fandoms"""
+def create_top_fandoms_image(fandoms):
+    """Create an image showing top 5 fandoms and return as base64"""
     width, height = 1080, 1920
 
     # Create subtle gradient background (burgundy to deep maroon)
@@ -272,11 +282,15 @@ def create_top_fandoms_image(fandoms, output_path):
 
         y_offset += 250
 
-    img.save(output_path, 'PNG')
-    return output_path
+    # Save to BytesIO and return base64
+    buffer = io.BytesIO()
+    img.save(buffer, format='PNG')
+    buffer.seek(0)
+    img_base64 = base64.b64encode(buffer.getvalue()).decode('utf-8')
+    return f'data:image/png;base64,{img_base64}'
 
-def create_overall_stats_image(stats, output_path):
-    """Create an image showing overall reading stats"""
+def create_overall_stats_image(stats):
+    """Create an image showing overall reading stats and return as base64"""
     width, height = 1080, 1920
 
     # Create subtle gradient background (AO3 maroon to dark burgundy)
@@ -337,38 +351,27 @@ def create_overall_stats_image(stats, output_path):
             draw_text_centered(draw, title_y, line, title_font_small, (90, 0, 8), width)
             title_y += 45
 
-    img.save(output_path, 'PNG')
-    return output_path
+    # Save to BytesIO and return base64
+    buffer = io.BytesIO()
+    img.save(buffer, format='PNG')
+    buffer.seek(0)
+    img_base64 = base64.b64encode(buffer.getvalue()).decode('utf-8')
+    return f'data:image/png;base64,{img_base64}'
 
 def generate_all_stat_images(statistics):
-    """Generate all stat images and return their paths"""
-    output_dir = '/tmp/ao3_stats'
-    os.makedirs(output_dir, exist_ok=True)
+    """Generate all stat images and return them as base64 data URLs"""
+    image_data = {}
 
-    image_paths = {}
-
-    # Generate each image
+    # Generate each image as base64
     if statistics['topShips']:
-        image_paths['ships'] = create_top_ships_image(
-            statistics['topShips'],
-            os.path.join(output_dir, 'top_ships.png')
-        )
+        image_data['ships'] = create_top_ships_image(statistics['topShips'])
 
     if statistics['topTags']:
-        image_paths['tags'] = create_top_tags_image(
-            statistics['topTags'],
-            os.path.join(output_dir, 'top_tags.png')
-        )
+        image_data['tags'] = create_top_tags_image(statistics['topTags'])
 
     if statistics['topFandoms']:
-        image_paths['fandoms'] = create_top_fandoms_image(
-            statistics['topFandoms'],
-            os.path.join(output_dir, 'top_fandoms.png')
-        )
+        image_data['fandoms'] = create_top_fandoms_image(statistics['topFandoms'])
 
-    image_paths['overall'] = create_overall_stats_image(
-        statistics,
-        os.path.join(output_dir, 'overall_stats.png')
-    )
+    image_data['overall'] = create_overall_stats_image(statistics)
 
-    return image_paths
+    return image_data

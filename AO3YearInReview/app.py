@@ -25,12 +25,12 @@ from image_generator import generate_all_stat_images
 
 app = Flask(
     __name__,
-    static_folder="public",
-    static_url_path="/static"
+    static_folder='public',
+    static_url_path='/AO3YearInReview/public'
 )
 
-# IMPORTANT: tell Flask it is mounted under a prefix
-app.config["APPLICATION_ROOT"] = "/AO3YearInReview"
+app.config['APPLICATION_ROOT'] = '/AO3YearInReview'
+
 
 # Respect reverse proxy headers
 app.wsgi_app = ProxyFix(app.wsgi_app, x_prefix=1)
@@ -46,6 +46,8 @@ print("Flask and scraper loaded successfully")
 # --------------------
 
 @app.route("/")
+@app.route("/AO3YearInReview/")
+
 def index():
     """
     Serve the frontend index.html.

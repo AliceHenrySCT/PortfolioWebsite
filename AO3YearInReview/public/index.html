@@ -4,7 +4,6 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>AO3 History Scraper</title>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
     <style>
         * {
             margin: 0;
@@ -613,7 +612,7 @@
             return div.innerHTML;
         }
 
-        async function downloadAllImages() {
+        function downloadAllImages() {
             const imageTypes = [
                 { type: 'overall', filename: 'overall_stats.png', container: 'overallContainer', imgId: 'overallStatsImage' },
                 { type: 'ships', filename: 'top_ships.png', container: 'shipsContainer', imgId: 'shipsImage' },
@@ -623,11 +622,10 @@
 
             const btn = document.getElementById('downloadAllBtn');
             const originalText = btn.textContent;
-            btn.textContent = 'Creating ZIP...';
+            btn.textContent = 'Downloading...';
             btn.disabled = true;
 
             try {
-                const zip = new JSZip();
                 let hasImages = false;
 
                 for (const image of imageTypes) {
@@ -635,27 +633,19 @@
                     const img = document.getElementById(image.imgId);
 
                     if (container && container.style.display !== 'none' && img && img.src) {
-                        const base64Data = img.src.split(',')[1];
-                        zip.file(image.filename, base64Data, { base64: true });
+                        const a = document.createElement('a');
+                        a.href = img.src;
+                        a.download = image.filename;
+                        document.body.appendChild(a);
+                        a.click();
+                        document.body.removeChild(a);
                         hasImages = true;
                     }
                 }
 
                 if (!hasImages) {
                     alert('No images available to download.');
-                    return;
                 }
-
-                btn.textContent = 'Downloading...';
-                const content = await zip.generateAsync({ type: 'blob' });
-
-                const a = document.createElement('a');
-                a.href = URL.createObjectURL(content);
-                a.download = 'ao3_year_in_review.zip';
-                document.body.appendChild(a);
-                a.click();
-                document.body.removeChild(a);
-                URL.revokeObjectURL(a.href);
 
             } catch (err) {
                 console.error('Error downloading images:', err);

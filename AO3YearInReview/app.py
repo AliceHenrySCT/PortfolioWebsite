@@ -190,7 +190,9 @@ def calculate_statistics(history_items):
 # --------------------
 
 @app.route('/api/scrape-stream', methods=['GET'])
+@app.route('/AO3YearInReview/api/scrape-stream', methods=['GET'])
 def scrape_stream():
+
     username = request.args.get('username')
     password = request.args.get('password')
     year = request.args.get('year')

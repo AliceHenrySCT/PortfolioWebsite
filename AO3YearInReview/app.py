@@ -1,3 +1,6 @@
+from queue import Queue
+from threading import Thread
+
 from flask import (
     Flask,
     request,
@@ -184,75 +187,74 @@ def calculate_statistics(history_items):
 # Scraping routes
 # --------------------
 
-@app.route("/api/scrape-stream", methods=["GET"])
+@app.route('/api/scrape-stream', methods=['GET'])
 def scrape_stream():
-    username = request.args.get("username")
-    password = request.args.get("password")
-    year = request.args.get("year")
+    username = request.args.get('username')
+    password = request.args.get('password')
+    year = request.args.get('year')
 
     if not username or not password:
-        def error_gen():
-            yield f"event: error\ndata: {json.dumps({'error': 'Username and password required'})}\n\n"
-        return Response(error_gen(), mimetype="text/event-stream")
+        return Response(
+            'event: error\ndata: {"error":"Username and password required"}\n\n',
+            mimetype='text/event-stream'
+        )
 
     def generate():
-        progress_queue = []
+        q = Queue()
 
-        def on_progress(progress_data):
-            progress_queue.append(progress_data)
-
-        try:
-            import threading
-            import time
-
-            result = {"items": None, "error": None}
-
-            def scrape_thread():
-                try:
-                    result["items"] = scrape_ao3_history(
-                        username,
-                        password,
-                        year if year else None,
-                        retries=3,
-                        on_progress=on_progress
-                    )
-                except Exception as e:
-                    result["error"] = e
-
-            thread = threading.Thread(target=scrape_thread)
-            thread.start()
-
-            while thread.is_alive():
-                while progress_queue:
-                    yield f"event: progress\ndata: {json.dumps(progress_queue.pop(0))}\n\n"
-                time.sleep(0.5)
-
-            while progress_queue:
-                yield f"event: progress\ndata: {json.dumps(progress_queue.pop(0))}\n\n"
-
-            if result["error"]:
-                raise result["error"]
-
-            history_items = result["items"]
-            statistics = calculate_statistics(history_items)
-
+        def run_scraper():
             try:
-                generate_all_stat_images(statistics)
-                statistics["imagePaths"] = {
-                    "ships": "/api/stats-image/ships",
-                    "tags": "/api/stats-image/tags",
-                    "fandoms": "/api/stats-image/fandoms",
-                    "overall": "/api/stats-image/overall"
-                }
-            except Exception:
-                statistics["imagePaths"] = {}
+                def on_progress(data):
+                    q.put(('progress', data))
 
-            yield f"event: complete\ndata: {json.dumps({'items': history_items, 'statistics': statistics})}\n\n"
+                items = scrape_ao3_history(
+                    username,
+                    password,
+                    year if year else None,
+                    on_progress=on_progress,
+                    retries=3
+                )
 
-        except Exception as e:
-            yield f"event: error\ndata: {json.dumps({'error': str(e)})}\n\n"
+                stats = calculate_statistics(items)
 
-    return Response(generate(), mimetype="text/event-stream")
+                try:
+                    generate_all_stat_images(stats)
+                    stats['imagePaths'] = {
+                        'ships': '/api/stats-image/ships',
+                        'tags': '/api/stats-image/tags',
+                        'fandoms': '/api/stats-image/fandoms',
+                        'overall': '/api/stats-image/overall'
+                    }
+                except Exception as img_err:
+                    print("Image generation error:", img_err)
+                    stats['imagePaths'] = {}
+
+                q.put(('complete', {'items': items, 'statistics': stats}))
+
+            except Exception as e:
+                q.put(('error', {'error': str(e)}))
+
+        Thread(target=run_scraper, daemon=True).start()
+
+        # Immediately tell the client we're alive
+        yield 'event: status\ndata: {"message":"started"}\n\n'
+
+        while True:
+            event, payload = q.get()
+            yield f'event: {event}\ndata: {json.dumps(payload)}\n\n'
+            if event in ('complete', 'error'):
+                break
+
+    return Response(
+        generate(),
+        mimetype='text/event-stream',
+        headers={
+            'Cache-Control': 'no-cache',
+            'X-Accel-Buffering': 'no',
+            'Connection': 'keep-alive',
+        }
+    )
+
 
 
 @app.route("/api/scrape", methods=["POST"])
